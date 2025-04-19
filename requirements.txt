@@ -9,3 +9,5 @@ alembic
 jinja2                
 passlib[bcrypt]       
 python-multipart      
+psycopg2-binary
+sqlacodegen

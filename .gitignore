@@ -1,0 +1,5 @@
+*.log
+*.config
+*.env
+*.ini
+__pycache__/

@@ -1,7 +1,11 @@
-from .base import Base, TimestampMixin
-from .movies import Movies
-from .persons import Person
+from server.models.base import Base, TimestampMixin
+from server.models.movies import Movies,MovieTag, MovieTagEnums
+from server.models.persons import Person
 
-# from .persons import
 
-__all__ = ["Base", "TimestampMixin", "Movies", "Person"]
+__all__ = ["Base", 
+           "TimestampMixin", 
+           "Movies",
+           "MovieTag",
+           "MovieTagEnums",
+           "Person"]

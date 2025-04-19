@@ -1,7 +1,6 @@
 import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker,declarative_base
-
 import os
 
 
@@ -26,10 +25,10 @@ LOGGER.addHandler(file_handler)
 LOGGER.addHandler(error_handler)
 LOGGER.addHandler(stream_handler)
 
-DB_URL = 'postgres+psycopg2://jolo@localhost:5432/study'
+DB_URL = 'postgresql+psycopg2://jolo@localhost:5432/study'
 engine = create_engine(DB_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush = False,bind = engine)
-Base.metadata.create_all(bind=engine)
+
 
 def get_session():
     db = SessionLocal()
