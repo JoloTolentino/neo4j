@@ -5,15 +5,14 @@ from sqlalchemy.orm import declared_attr, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
-    uuid:Mapped[str] = mapped_column(String, primary_key=True)
+    uuid: Mapped[str] = mapped_column(String, primary_key=True)
 
 
 class TimestampMixin:
     @declared_attr
     def created_at(cls) -> Mapped[datetime]:
         return mapped_column(
-            DateTime(timezone=True),
-            default=lambda: datetime.now(timezone.utc)
+            DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
         )
 
     @declared_attr
@@ -21,5 +20,5 @@ class TimestampMixin:
         return mapped_column(
             DateTime(timezone=True),
             default=lambda: datetime.now(timezone.utc),
-            onupdate=lambda: datetime.now(timezone.utc)
+            onupdate=lambda: datetime.now(timezone.utc),
         )

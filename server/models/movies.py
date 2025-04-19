@@ -2,7 +2,7 @@ from sqlalchemy import String, Integer, Float, CheckConstraint
 from sqlalchemy import Enum
 from sqlalchemy import JSON, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from server.models.base import Base,TimestampMixin
+from server.models.base import Base, TimestampMixin
 import enum
 
 
@@ -11,6 +11,7 @@ class MovieTagEnums(enum.Enum):
     love = "love"
     comedy = "comedy"
     action = "action"
+
 
 class MovieTag(Base):
     __tablename__ = "movie_tags"
@@ -27,7 +28,7 @@ class Movies(TimestampMixin, Base):
         CheckConstraint("ratings > 0 AND  ratings<=5.0", name="rating constraints"),
     )
     title: Mapped[str] = mapped_column(unique=True)
-    actors: Mapped[list['Person']] = relationship(
+    actors: Mapped[list["persons"]] = relationship(
         back_populates="movie"
     )  # we creaet a link with the Person Table # does not show up in the table itself
     tags: Mapped[list[MovieTag]] = relationship(
