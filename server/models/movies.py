@@ -14,6 +14,7 @@ class MovieTagEnums(enum.Enum):
 
 
 class MovieTag(Base):
+    # composit key = movie_title + tag
     __tablename__ = "movie_tags"
     movie_title: Mapped[str] = mapped_column(
         ForeignKey("movies.title"), primary_key=True
@@ -28,13 +29,10 @@ class Movies(TimestampMixin, Base):
         CheckConstraint("ratings > 0 AND  ratings<=5.0", name="rating constraints"),
     )
     title: Mapped[str] = mapped_column(unique=True)
-    actors: Mapped[list["persons"]] = relationship(
+    actors: Mapped[list["Person"]] = relationship(
         back_populates="movie"
     )  # we creaet a link with the Person Table # does not show up in the table itself
     tags: Mapped[list[MovieTag]] = relationship(
         back_populates="movie", cascade="all, delete-orphan"
     )
     ratings: Mapped[float] = mapped_column(Float)
-
-    def __repr__(self) -> str:
-        return f"Movie : {self.title}"

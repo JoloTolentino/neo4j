@@ -11,6 +11,5 @@ downgrade:
 	source fast/bin/activate && PYTHONPATH=. alembic -c server/alembic.ini downgrade -1
 history:
 	source fast/bin/activate && PYTHONPATH=. alembic -c server/alembic.ini history --verbose
-
-
-
+server:
+	source fast/bin/activate && PYTHONPATH=. uvicorn server.wsgi:app --reload

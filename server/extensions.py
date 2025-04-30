@@ -1,6 +1,7 @@
 import logging
+from fastapi import Request, Depends, HTTPException, status
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import Session, sessionmaker, declarative_base
 import os
 
 
@@ -29,9 +30,22 @@ engine = create_engine(DB_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-def get_session():
+def get_pg_session():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
+
+def get_service(name: str):
+    def _resolver(request: Request, pg=Depends(get_pg_session)):
+        try:
+            service = {"postgres": pg}
+            return service[name]
+        except KeyError as err:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Service not provided"
+            )
+
+    return _resolver

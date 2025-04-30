@@ -1,6 +1,6 @@
 from server.models import Base, TimestampMixin
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Boolean, Integer
+from sqlalchemy import String, Integer
 
 
 class Transaction(Base, TimestampMixin):
