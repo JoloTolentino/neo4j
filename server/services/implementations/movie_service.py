@@ -5,8 +5,10 @@ from server.schemas.persons import PersonInput
 from server.schemas.movies import Movies as MoviesSchema, MovieInput
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import select
 from server.extensions import get_service
 from uuid import uuid4
+import pandas as pd
 import pdb
 import datetime
 
@@ -17,13 +19,17 @@ class MovieService(AbstractMovieService):
 
     def _create_time(self) -> datetime:
         return datetime.datetime.now()
-    
-    def _title_exists(self, title:str) -> bool:
-        return True if (self.db.query(MoviesModel)
-                .filter(MoviesModel.title == title)
-                .first()) else False
 
-    def _create_actors(self, actor_inputs: list[PersonInput], movie_uuid: str) -> list[Person]:
+    def _title_exists(self, title: str) -> bool:
+        return (
+            True
+            if (self.db.query(MoviesModel).filter(MoviesModel.title == title).first())
+            else False
+        )
+
+    def _create_actors(
+        self, actor_inputs: list[PersonInput], movie_uuid: str
+    ) -> list[Person]:
         return [
             Person(
                 uuid=uuid4().hex,
@@ -34,7 +40,7 @@ class MovieService(AbstractMovieService):
             )
             for actor in actor_inputs
         ]
-    
+
     def _create_tags(self, tag_inputs, movie_title: str) -> list[MovieTag]:
         return [
             MovieTag(
@@ -47,25 +53,25 @@ class MovieService(AbstractMovieService):
 
     def add_movie(self, movie: MovieInput) -> MoviesSchema:
         try:
-            
+
             if self._title_exists(movie.title):
                 raise ValueError("Movie Exists")
 
             movie_uuid = uuid4().hex
             ts = self._create_time()
             db_movie = MoviesModel(
-                title=movie.title, 
-                ratings=movie.ratings, 
+                title=movie.title,
+                ratings=movie.ratings,
                 uuid=movie_uuid,
-                actors = self._create_actors(movie.actors, movie_uuid),
-                tags = self._create_tags(movie.tags,movie.title),
-                created_at = ts,
-                updated_at = ts
+                actors=self._create_actors(movie.actors, movie_uuid),
+                tags=self._create_tags(movie.tags, movie.title),
+                created_at=ts,
+                updated_at=ts,
             )
             self.db.add(db_movie)
             self.db.commit()
             self.db.refresh(db_movie)
-            
+
             return MoviesSchema.model_validate(db_movie, from_attributes=True)
 
         except ValueError as ve:
@@ -82,9 +88,14 @@ class MovieService(AbstractMovieService):
                 status_code=500, detail=f"Unexpected error occurred {e}"
             )
 
-    def list_movies(self):
-        return self.db.query(MoviesModel).all()
-    
+    async def list_movies(self):
+        result = await self.db.execute(select(MoviesModel))        
+        return result.scalars().all() 
+
+
+    async def download_movies(self):
+        query = self.list_movies()
+        df = await pd.read_sql(query, self.db.bind)
 
     def download_list(self):
         pass

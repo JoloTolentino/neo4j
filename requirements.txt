@@ -11,3 +11,5 @@ passlib[bcrypt]
 python-multipart      
 psycopg2-binary
 sqlacodegen
+boto3
+pandas

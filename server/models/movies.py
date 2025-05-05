@@ -32,7 +32,7 @@ class Movies(TimestampMixin, Base):
     actors: Mapped[list["Person"]] = relationship(
         back_populates="movie"
     )  # we creaet a link with the Person Table # does not show up in the table itself
-    tags: Mapped[list[MovieTag]] = relationship(
+    tags: Mapped[list[MovieTag]] = relationship(  # < ---- looking for a SA object
         back_populates="movie", cascade="all, delete-orphan"
     )
     ratings: Mapped[float] = mapped_column(Float)

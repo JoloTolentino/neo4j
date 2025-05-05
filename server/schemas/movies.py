@@ -13,7 +13,7 @@ class MovieTagInput(BaseModel):
 class MovieInput(BaseModel):
     title: str
     actors: list[PersonInput]
-    tags: list[MovieTagInput]
+    tags: list[MovieTagInput]  # cant be a string cuz model expects a sa object
     ratings: float
 
     @field_validator("title")

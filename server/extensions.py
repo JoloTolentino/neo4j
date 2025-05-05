@@ -1,6 +1,7 @@
 import logging
 from fastapi import Request, Depends, HTTPException, status
 from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import create_async_engine,async_sessionmaker,AsyncSession
 from sqlalchemy.orm import Session, sessionmaker, declarative_base
 import os
 
@@ -25,27 +26,29 @@ LOGGER.addHandler(file_handler)
 LOGGER.addHandler(error_handler)
 LOGGER.addHandler(stream_handler)
 
-DB_URL = "postgresql+psycopg2://jolo@localhost:5432/study"
-engine = create_engine(DB_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# DB_URL = "postgresql+psycopg2://jolo@localhost:5432/study" #sync
+DB_URL = 'postgresql+asyncpg://jolo@localhost:5432/study'
+engine = create_async_engine(DB_URL)
 
 
-def get_pg_session():
+
+
+# sync 
+# engine = create_engine(DB_URL)
+
+
+#sync 
+#flush is being able to query your transactions that havent been committed yet 
+# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = async_sessionmaker(autocommit=False, autoflush=False,bind= engine)
+
+
+async def get_pg_session():
+
+
+    
     db = SessionLocal()
     try:
         yield db
     finally:
-        db.close()
-
-
-def get_service(name: str):
-    def _resolver(request: Request, pg=Depends(get_pg_session)):
-        try:
-            service = {"postgres": pg}
-            return service[name]
-        except KeyError as err:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Service not provided"
-            )
-
-    return _resolver
+        await db.close()
