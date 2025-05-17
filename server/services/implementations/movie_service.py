@@ -6,10 +6,8 @@ from server.schemas.movies import Movies as MoviesSchema, MovieInput
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import select
-from server.extensions import get_service
 from uuid import uuid4
 import pandas as pd
-import pdb
 import datetime
 
 
@@ -51,7 +49,7 @@ class MovieService(AbstractMovieService):
             for tag in tag_inputs
         ]
 
-    def add_movie(self, movie: MovieInput) -> MoviesSchema:
+    async def add_movie(self, movie: MovieInput) -> MoviesSchema:
         try:
 
             if self._title_exists(movie.title):
@@ -68,9 +66,9 @@ class MovieService(AbstractMovieService):
                 created_at=ts,
                 updated_at=ts,
             )
-            self.db.add(db_movie)
-            self.db.commit()
-            self.db.refresh(db_movie)
+            await self.db.add(db_movie)
+            await self.db.commit()
+            await self.db.refresh(db_movie)
 
             return MoviesSchema.model_validate(db_movie, from_attributes=True)
 
@@ -89,9 +87,8 @@ class MovieService(AbstractMovieService):
             )
 
     async def list_movies(self):
-        result = await self.db.execute(select(MoviesModel))        
-        return result.scalars().all() 
-
+        result = await self.db.execute(select(MoviesModel))
+        return result.scalars().all()
 
     async def download_movies(self):
         query = self.list_movies()

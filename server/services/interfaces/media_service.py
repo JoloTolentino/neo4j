@@ -8,15 +8,20 @@ class AWSRegion(str, enum.Enum):
     EU_CENTRAL_1 = "eu-central-1"
 
 
-class S3Service(ABC):
+
+class MediaService(ABC):
     @abstractmethod
     def upload_file(self, file):
-        pass
+        'given a file, the services uploads it localy or to the cloud'
 
     @abstractmethod
     def download_file(self, filename):
-        pass
+        'given a filename provides the file associated with the filename'
 
     @abstractmethod
     def download_files(self, group):
-        pass
+        'given a file group, returns all the '
+
+    @abstractmethod
+    def update_status(self, job_id): 
+        'update'

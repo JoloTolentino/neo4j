@@ -1,8 +1,10 @@
 import logging
 from fastapi import Request, Depends, HTTPException, status
 from sqlalchemy import create_engine
-from sqlalchemy.ext.asyncio import create_async_engine,async_sessionmaker,AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import Session, sessionmaker, declarative_base
+from server.services.implementations.cache_service import Redis_Service
+from functools import lru_cache
 import os
 
 
@@ -27,28 +29,30 @@ LOGGER.addHandler(error_handler)
 LOGGER.addHandler(stream_handler)
 
 # DB_URL = "postgresql+psycopg2://jolo@localhost:5432/study" #sync
-DB_URL = 'postgresql+asyncpg://jolo@localhost:5432/study'
+DB_URL = "postgresql+asyncpg://jolo@localhost:5432/study"
 engine = create_async_engine(DB_URL)
 
 
-
-
-# sync 
+# sync
 # engine = create_engine(DB_URL)
 
 
-#sync 
-#flush is being able to query your transactions that havent been committed yet 
+# sync
+# flush is being able to query your transactions that havent been committed yet
 # SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-SessionLocal = async_sessionmaker(autocommit=False, autoflush=False,bind= engine)
+SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 async def get_pg_session():
-
-
-    
     db = SessionLocal()
     try:
         yield db
     finally:
         await db.close()
+
+
+
+#singleton 
+@lru_cache
+def get_cache():
+    return Redis_Service()
